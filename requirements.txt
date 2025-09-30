@@ -1,5 +1,5 @@
 streamlit
 python-dotenv
-agno[sqlite]
+agno
 openai
 firecrawl-py
