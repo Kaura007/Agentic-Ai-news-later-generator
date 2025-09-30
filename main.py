@@ -1,19 +1,26 @@
 import json
 from textwrap import dedent
 from typing import Dict, AsyncIterator, Optional, List, Any
-from agno.agent import Agent
-from agno.models.nebius import Nebius
-from agno.storage.sqlite import SqliteStorage
-from agno.utils.log import logger
 import os
-from agno.utils.pprint import pprint_run_response
 from dotenv import load_dotenv
 import asyncio
-from agno.tools.firecrawl import FirecrawlTools
 
-
-# Load environment variables
+# Load environment variables first
 load_dotenv()
+
+# Try importing agno components with better error handling
+try:
+    from agno.agent import Agent
+    from agno.models.nebius import Nebius
+    from agno.storage.sqlite import SqliteStorage
+    from agno.utils.log import logger
+    from agno.utils.pprint import pprint_run_response
+    from agno.tools.firecrawl import FirecrawlTools
+except ImportError as e:
+    print(f"Error importing agno: {e}")
+    print("Please ensure agno is installed correctly:")
+    print("pip install agno aiosqlite sqlalchemy")
+    raise
 
 # Get API keys from environment variables
 FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY")
@@ -24,6 +31,9 @@ if not FIRECRAWL_API_KEY:
     raise ValueError("FIRECRAWL_API_KEY environment variable is not set. Please set it in your .env file or environment.")
 if not NEBIUS_API_KEY:
     raise ValueError("NEBIUS_API_KEY environment variable is not set. Please set it in your .env file or environment.")
+
+# Ensure database directory exists
+os.makedirs("tmp", exist_ok=True)
 
 # Newsletter Research Agent: Handles web searching and content extraction using Firecrawl
 newsletter_agent = Agent(
@@ -136,9 +146,6 @@ newsletter_agent = Agent(
     markdown=True,
     show_tool_calls=True,
     add_datetime_to_instructions=True,
-    # Ensure database directory exists
-    # os.makedirs("tmp", exist_ok=True)
-
     storage=SqliteStorage(
         table_name="newsletter_agent",
         db_file="tmp/newsletter_agent.db",
