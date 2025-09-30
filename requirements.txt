@@ -1,5 +1,7 @@
 streamlit
 python-dotenv
 agno
-asyncio
+aiosqlite
 openai
+firecrawl-py
+httpx
